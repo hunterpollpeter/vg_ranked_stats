@@ -1,0 +1,23 @@
+{
+  "name": "vg_ranked_stats",
+  "version": "1.0.0",
+  "main": "bin/index.js",
+  "bin": {
+    "vg-ranked-stats": "./bin/index.js"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "babel src -d bin"
+  },
+  "dependencies": {
+    "axios": "^0.26.0",
+    "call-of-duty-api": "^3.1.0",
+    "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.5",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11"
+  }
+}

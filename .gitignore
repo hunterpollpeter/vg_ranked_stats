@@ -1,0 +1,5 @@
+/node_modules
+/bin
+
+# ignore HTML files in source for now
+/src/*.html
