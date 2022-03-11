@@ -1,5 +1,8 @@
-/node_modules
-/bin
+node_modules
+bin/*
+
+!bin/gamers
+!bin/index.html
 
 # ignore HTML files in source for now
-/src/*.html
+src/*.html
