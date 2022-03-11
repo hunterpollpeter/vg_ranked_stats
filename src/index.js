@@ -7,9 +7,8 @@ import { dataToHtmlFile } from "./htmlGenerator";
 import { processData } from "./processor";
 import { compareProcessedData } from "./comparator";
 import { readGamerFile, writeGamerFile } from "./utils";
+import ACT_SSO_COOKIE from "./sso_cookie";
 
-const ACT_SSO_COOKIE =
-  "MzU4NzA4Njg0NDMxNzIyNzI3ODoxNjQ3NzA1NzA0MDE5OjVkZGM3YjA4NTQ1NmU2YmNmYmRhNWQwMWJlMmQ0NDNh";
 const SND_PLAYLIST_NAME = "PLAYLIST/CDL_SD_NAME";
 const HP_PLAYLIST_NAME = "PLAYLIST/CDL_KOTH_NAME";
 const CTRL_PLAYLIST_NAME = "PLAYLIST/CDL_CONTROL";
