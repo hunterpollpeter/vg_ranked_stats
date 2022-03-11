@@ -1,6 +1,5 @@
-const fs = require("fs");
-
 import { translate, transformStatValue } from "./translator";
+import { writeGamerFile } from "./utils";
 
 const MAX_DEPTH = 6;
 
@@ -9,21 +8,39 @@ const STYLE = `body {
   margin: 0;
 }
 
-nav {
+#title {
+  padding: 20px;
+  margin: 0;
+  border-bottom: 1px solid black;
+}
+
+nav#top {
+  border-bottom: 1px solid black;
+  padding: 20px;
+}
+
+nav#top span, nav#top a {
+  margin-right: 10px;
+}
+
+nav#top span.active {
+  font-weight: bold;
+}
+
+nav#side {
   flex: 0 0 100%;
-  padding: 1em;
+  padding: 20px;
 }
 
-nav li {
+nav#side li {
   white-space: nowrap;
-  margin-bottom: 0.25em;
+  margin-bottom: 5px;
 }
 
-main {
+section#content {
   flex: 1 1 auto;
-  padding: 1em;
+  padding: 20px;
   align-self: center;
-  border-left: 1px solid black;
 }
 
 ul {
@@ -33,7 +50,7 @@ ul {
 }
 
 ul ul {
-  padding-left: 2em;
+  padding-left: 20px;
 }
 
 li.stat {
@@ -53,20 +70,41 @@ li.stat {
 }
 
 @media only screen and (min-width: 600px) {
-    body {
-display: flex;
+    main {
+      display: flex;
     }
     
-    nav {
+    nav#side {
       flex: 0 0 0;
       position: sticky;
       top: 0;
       align-self: flex-start;
-      padding: 1em;
+      padding: 20px;
     }
-}`;
 
-const htmlDoc = (title, content, nav, { style = STYLE } = {}) => {
+    section#content {
+      border-left: 1px solid black;
+    }
+}
+
+.percent-change {
+  cursor: help;
+}
+
+.percent-change-zero {
+  color: gray;
+}
+
+.percent-change-positive {
+  color: green;
+}
+
+.percent-change-negative {
+  color: red;
+}
+`;
+
+const htmlDoc = (title, content, { sideNav, topNav, style = STYLE } = {}) => {
   return `<html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -76,12 +114,28 @@ const htmlDoc = (title, content, nav, { style = STYLE } = {}) => {
     <style>${style}</style>
   </head>
   <body>
-  <nav>
-  ${nav}
-  </nav>
-  <main>
-  ${content}
-  </main>
+  <h1 id="title">${title}</h1>
+  ${
+    topNav &&
+    `
+    <nav id="top">
+      ${topNav}
+    </nav>
+  `
+  }
+    <main>
+      ${
+        sideNav &&
+        `
+        <nav id="side">
+          ${sideNav}
+        </nav>
+      `
+      }
+      <section id="content">
+        ${content}
+      </section>
+    </main>
   </body>
 </html>`;
 };
@@ -106,7 +160,10 @@ const objectNavHtml = (data, prevId) => {
   return html;
 };
 
-const objectToHtml = (data, prevId, depth = 0) => {
+const objectToHtml = (
+  data,
+  { comparedTo, prevId = undefined, depth = 0 } = {}
+) => {
   let html = "";
 
   html += `<ul>`;
@@ -124,9 +181,30 @@ const objectToHtml = (data, prevId, depth = 0) => {
       }; height: ${HEADER_HEIGHT}; z-index: ${
         1000 - depth * 100
       }">${header}</h${headerDepth}>`;
-      html += objectToHtml(value, id, depth + 1);
+      html += objectToHtml(value, {
+        comparedTo: comparedTo?.[key],
+        prevId: id,
+        depth: depth + 1,
+      });
     } else {
-      html += `<h4>${header}</h4><p>${transformStatValue(key, value)}</p>`;
+      const percentChange = comparedTo?.[key]?.percentChange;
+
+      let stat = transformStatValue(key, value);
+
+      if (percentChange !== undefined) {
+        let percentChangeClass = "zero";
+        percentChangeClass =
+          percentChange > 0 ? "positive" : percentChangeClass;
+        percentChangeClass =
+          percentChange < 0 ? "negative" : percentChangeClass;
+
+        stat += ` <small title="Percent change from overall." class="percent-change percent-change-${percentChangeClass}">${transformStatValue(
+          "percentChange",
+          percentChange
+        )}</small>`;
+      }
+
+      html += `<h4>${header}</h4><p>${stat}</p>`;
     }
     html += `</li>`;
   });
@@ -151,27 +229,30 @@ const tableCols = (object) => {
   return cols;
 };
 
-export const objectToTableHTML = (object) => {
-  const cols = tableCols(object);
+const topNavToHtml = (linkedTo, current) => {
+  return linkedTo
+    .map(({ href, text }) => {
+      const friendlyText = translate(text);
 
-  console.log("COLS", JSON.stringify(cols));
+      if (text === current) {
+        return `<span class="active">${friendlyText}</span>`;
+      } else {
+        return `<a href="${href}">${friendlyText}</a>`;
+      }
+    })
+    .join("");
 };
 
-export const dataToHtmlFile = (gamertag, data) => {
-  const fileSafeGamertag = gamertag.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  const fileName = `${fileSafeGamertag}.html`;
-  const filePath = `${__dirname}/gamers/${fileName}`;
+export const dataToHtmlFile = (
+  gamertag,
+  name,
+  data,
+  { linkedTo = [], comparedTo } = {}
+) => {
+  const content = objectToHtml(data, { comparedTo });
+  const sideNav = objectNavHtml(data);
+  const topNav = topNavToHtml(linkedTo, name, gamertag);
+  const html = htmlDoc(gamertag, content, { sideNav, topNav });
 
-  let content = `<h1>${gamertag}</h1>`;
-  content += objectToHtml(data);
-  const nav = objectNavHtml(data);
-  const html = htmlDoc(gamertag, content, nav);
-
-  try {
-    fs.writeFileSync(filePath, html);
-    //file written successfully
-    console.log("HTML file written successfully");
-  } catch (err) {
-    console.error(err);
-  }
+  writeGamerFile(gamertag, `${name}.html`, html);
 };
