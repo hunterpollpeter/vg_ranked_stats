@@ -113,6 +113,7 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
 
     data = {
       ...data,
+      lastUpdated: Date.now(),
       matches: newMatches,
       lastMatchEndMs: newLastMatchEndMs,
     };
@@ -124,12 +125,15 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
       last: 5,
       exclusions: ["percentPlayed"],
     });
+    const best = processData(data, { best: true });
 
     data = {
       ...data,
+      lastProcessed: Date.now(),
       processedData: {
         overall,
         recent,
+        best,
       },
       comparedProcessedData: {
         overall: {
@@ -145,18 +149,29 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
 };
 
 getData(gamertag, { update, process }).then((data) => {
-  const { processedData, comparedProcessedData } = data;
-  const { overall, recent } = processedData;
+  const { processedData, comparedProcessedData, lastUpdated, lastProcessed } =
+    data;
+  const { overall, recent, best } = processedData;
   const linkedTo = [
     { href: "overall.html", text: "overall" },
     { href: "recent.html", text: "recent" },
+    { href: "best.html", text: "best" },
   ];
 
   dataToHtmlFile(gamertag, "overall", overall, {
     linkedTo,
+    lastUpdated,
+    lastProcessed,
   });
   dataToHtmlFile(gamertag, "recent", recent, {
     linkedTo,
+    lastUpdated,
+    lastProcessed,
     comparedTo: comparedProcessedData.overall.recent,
+  });
+  dataToHtmlFile(gamertag, "best", best, {
+    linkedTo,
+    lastUpdated,
+    lastProcessed,
   });
 });

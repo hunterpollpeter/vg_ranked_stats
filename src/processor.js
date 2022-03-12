@@ -16,13 +16,159 @@ const BASE_STATS = {
   timeMovingSeconds: 0,
   wins: 0,
   losses: 0,
+  draws: 0,
   games: 0,
   longestStreak: 0,
 };
 const LOSS_STRING = "loss";
 const WIN_STRING = "win";
+const DRAW_STRING = "tie";
+const MIN_DURATION = 180000; // 3 minutes
 
-const mergeMatchStats = (prev, match) => {
+const bestMatchStats = (prev, match) => {
+  prev ||= {};
+
+  const { playerStats } = match;
+  const {
+    kills,
+    deaths,
+    assists,
+    headshots,
+    damageDone,
+    damageTaken,
+    shotsLanded,
+    shotsFired,
+    longestStreak,
+    timePlayed: timePlayedSeconds,
+    score,
+    suicides,
+    executions,
+    percentTimeMoving: percentTimeMovingRaw,
+  } = playerStats;
+
+  // calculated
+  // const timeMovingSeconds = timePlayedSeconds * (percentTimeMoving / 100);
+  const timePlayedMinutes = timePlayedSeconds / 60;
+  const eliminations = kills + assists;
+  const percentTimeMoving = percentTimeMovingRaw / 100;
+  // const timeMovingSeconds = timePlayedSeconds * percentTimeMoving;
+
+  // ratios/percentages
+  const kdRatio = kills / (deaths || 1);
+  const edRatio = eliminations / (deaths || 1);
+  const accuracy = shotsLanded / (shotsFired || 1);
+  const headshotPercentage = headshots / (kills || 1);
+
+  // per minute
+  const scorePerMinute = score / timePlayedMinutes;
+  const killsPerMinute = kills / timePlayedMinutes;
+  const assistsPerMinute = assists / timePlayedMinutes;
+  const deathsPerMinute = deaths / timePlayedMinutes;
+  const elimsPerMinute = eliminations / timePlayedMinutes;
+  const damageDonePerMinute = damageDone / timePlayedMinutes;
+  const damageTakenPerMinute = damageTaken / timePlayedMinutes;
+  const shotsFiredPerMinute = shotsFired / timePlayedMinutes;
+  const headshotsPerMinute = headshots / timePlayedMinutes;
+
+  // bests
+  const bestEliminations = Math.max(prev.eliminations || 0, eliminations);
+  const bestKills = Math.max(prev.kills || 0, kills);
+  const bestDeaths = Math.min(prev.deaths || 9999, deaths);
+  const bestAssists = Math.max(prev.assists || 0, assists);
+  const bestHeadshots = Math.max(prev.headshots || 0, headshots);
+  const bestDamageDone = Math.max(prev.damageDone || 0, damageDone);
+  const bestDamageTaken = Math.min(prev.damageTaken || 9999, damageTaken);
+  const bestShotsLanded = Math.max(prev.shotsLanded || 0, shotsLanded);
+  const bestShotsFired = Math.max(prev.shotsFired || 0, shotsFired);
+  // const longestTimePlayedSeconds = Math.max(
+  //   prev.longestTimePlayedSeconds || 0,
+  //   timePlayedSeconds
+  // );
+  // const shortestTimePlayedSeconds = Math.min(
+  //   prev.shortestTimePlayedSeconds || 9999,
+  //   timePlayedSeconds
+  // );
+  const bestScore = Math.max(prev.score || 0, score);
+  const bestSuicides = Math.min(prev.suicides || 9999, suicides);
+  const bestExecutions = Math.max(prev.executions || 0, executions);
+  const bestLongestStreak = Math.max(prev.longestStreak || 0, longestStreak);
+  const bestKdRatio = Math.max(prev.kdRatio || 0, kdRatio);
+  const bestEdRatio = Math.max(prev.edRatio || 0, edRatio);
+  const bestAccuracy = Math.max(prev.accuracy || 0, accuracy);
+  const bestHeadshotPercentage = Math.max(
+    prev.headshotPercentage || 0,
+    headshotPercentage
+  );
+  const bestScorePerMinute = Math.max(prev.scorePerMinute || 0, scorePerMinute);
+  const bestKillsPerMinute = Math.max(prev.killsPerMinute || 0, killsPerMinute);
+  const bestAssistsPerMinute = Math.max(
+    prev.assistsPerMinute || 0,
+    assistsPerMinute
+  );
+  const bestDeathsPerMinute = Math.min(
+    prev.deathsPerMinute || 9999,
+    deathsPerMinute
+  );
+  const bestElimsPerMinute = Math.max(prev.elimsPerMinute || 0, elimsPerMinute);
+  const bestDamageDonePerMinute = Math.max(
+    prev.damageDonePerMinute || 0,
+    damageDonePerMinute
+  );
+  const bestDamageTakenPerMinute = Math.min(
+    prev.damageTakenPerMinute || 9999,
+    damageTakenPerMinute
+  );
+  const bestShotsFiredPerMinute = Math.max(
+    prev.shotsFiredPerMinute || 0,
+    shotsFiredPerMinute
+  );
+  const bestHeadshotsPerMinute = Math.max(
+    prev.headshotsPerMinute || 0,
+    headshotsPerMinute
+  );
+  const bestPercentTimeMoving = Math.max(
+    prev.percentTimeMoving || 0,
+    percentTimeMoving
+  );
+
+  return {
+    ...prev,
+    eliminations: bestEliminations,
+    kills: bestKills,
+    deaths: bestDeaths,
+    assists: bestAssists,
+    headshots: bestHeadshots,
+    damageDone: bestDamageDone,
+    damageTaken: bestDamageTaken,
+    shotsLanded: bestShotsLanded,
+    shotsFired: bestShotsFired,
+    score: bestScore,
+    suicides: bestSuicides,
+    executions: bestExecutions,
+    // timeMovingSeconds: bestTimeMovingSeconds,
+    percentTimeMoving: bestPercentTimeMoving,
+    longestStreak: bestLongestStreak,
+    // longestTimePlayedSeconds,
+    // shortestTimePlayedSeconds,
+    // ratios/percentages
+    kdRatio: bestKdRatio,
+    edRatio: bestEdRatio,
+    accuracy: bestAccuracy,
+    headshotPercentage: bestHeadshotPercentage,
+    // per minute
+    scorePerMinute: bestScorePerMinute,
+    killsPerMinute: bestKillsPerMinute,
+    assistsPerMinute: bestAssistsPerMinute,
+    deathsPerMinute: bestDeathsPerMinute,
+    elimsPerMinute: bestElimsPerMinute,
+    damageDonePerMinute: bestDamageDonePerMinute,
+    damageTakenPerMinute: bestDamageTakenPerMinute,
+    shotsFiredPerMinute: bestShotsFiredPerMinute,
+    headshotsPerMinute: bestHeadshotsPerMinute,
+  };
+};
+
+const combineMatchStats = (prev, match) => {
   prev ||= BASE_STATS;
 
   const { playerStats, result } = match;
@@ -40,14 +186,16 @@ const mergeMatchStats = (prev, match) => {
     score,
     suicides,
     executions,
-    percentTimeMoving,
+    percentTimeMoving: percentTimeMovingRaw,
   } = playerStats;
 
   // calculated
-  const timeMovingSeconds = timePlayedSeconds * (percentTimeMoving / 100);
+  const percentTimeMoving = percentTimeMovingRaw / 100;
+  const timeMovingSeconds = timePlayedSeconds * percentTimeMoving;
   const eliminations = kills + assists;
   const win = +(result === WIN_STRING);
   const loss = +(result === LOSS_STRING);
+  const draw = +(result === DRAW_STRING);
 
   // totals
   const totalEliminations = prev.eliminations + eliminations;
@@ -69,6 +217,7 @@ const mergeMatchStats = (prev, match) => {
     totalTimeMovingSeconds / totalTimePlayedSeconds;
   const totalWins = prev.wins + win;
   const totalLosses = prev.losses + loss;
+  const totalDraws = prev.draws + draw;
   const totalGames = prev.games + 1;
   const totalLongestStreak = Math.max(prev.longestStreak, longestStreak);
 
@@ -121,6 +270,7 @@ const mergeMatchStats = (prev, match) => {
     percentTimeMoving: totalPercentTimeMoving,
     wins: totalWins,
     losses: totalLosses,
+    draws: totalDraws,
     games: totalGames,
     longestStreak: totalLongestStreak,
     // ratios/percentages
@@ -152,11 +302,27 @@ const mergeMatchStats = (prev, match) => {
   };
 };
 
-export const processData = (data, { last = 99999, exclusions = [] } = {}) => {
+const mergeMatchStats = (prev, match, { best = false } = {}) => {
+  if (best) {
+    return bestMatchStats(prev, match);
+  }
+
+  return combineMatchStats(prev, match);
+};
+
+export const processData = (
+  data,
+  { last = 99999, exclusions = [], best = false } = {}
+) => {
   const { matches } = data;
 
   return matches.reduce((pd, match) => {
-    const { map: mapName, mode: modeName } = match;
+    const { map: mapName, mode: modeName, duration } = match;
+
+    // skip match if less than minimum duration
+    if (duration < MIN_DURATION) {
+      return pd;
+    }
 
     const modes = pd.modes || {};
     const maps = pd.maps || {};
@@ -174,19 +340,19 @@ export const processData = (data, { last = 99999, exclusions = [] } = {}) => {
     const mapModeGameCount = (mapMode?.games || 0) + 1;
 
     if (gameCount <= last) {
-      overall = mergeMatchStats(overall, match);
+      overall = mergeMatchStats(overall, match, { best });
     }
     if (modeGameCount <= last) {
-      mode = mergeMatchStats(mode, match);
+      mode = mergeMatchStats(mode, match, { best });
     }
     if (mapGameCount <= last) {
-      map = mergeMatchStats(map, match);
+      map = mergeMatchStats(map, match, { best });
     }
     if (modeMapGameCount <= last) {
-      modeMap = mergeMatchStats(modeMap, match);
+      modeMap = mergeMatchStats(modeMap, match, { best });
     }
     if (mapModeGameCount <= last) {
-      mapMode = mergeMatchStats(mapMode, match);
+      mapMode = mergeMatchStats(mapMode, match, { best });
     }
 
     mode.percentPlayed = modeGameCount / gameCount;

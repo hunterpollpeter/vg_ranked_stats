@@ -104,7 +104,11 @@ li.stat {
 }
 `;
 
-const htmlDoc = (title, content, { sideNav, topNav, style = STYLE } = {}) => {
+const htmlDoc = (
+  title,
+  content,
+  { sideNav, topNav, lastUpdated, lastProcessed, style = STYLE } = {}
+) => {
   return `<html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -114,7 +118,11 @@ const htmlDoc = (title, content, { sideNav, topNav, style = STYLE } = {}) => {
     <style>${style}</style>
   </head>
   <body>
-  <h1 id="title">${title}</h1>
+  <div id="title">
+  <h1>${title}</h1>
+  <small>Last updated: ${new Date(lastUpdated).toISOString()}</small><br />
+  <small>Last processed: ${new Date(lastProcessed).toISOString()}</small><br />
+  </div>
   ${
     topNav &&
     `
@@ -247,12 +255,17 @@ export const dataToHtmlFile = (
   gamertag,
   name,
   data,
-  { linkedTo = [], comparedTo } = {}
+  { linkedTo = [], comparedTo, lastUpdated, lastProcessed } = {}
 ) => {
   const content = objectToHtml(data, { comparedTo });
   const sideNav = objectNavHtml(data);
   const topNav = topNavToHtml(linkedTo, name, gamertag);
-  const html = htmlDoc(gamertag, content, { sideNav, topNav });
+  const html = htmlDoc(gamertag, content, {
+    sideNav,
+    topNav,
+    lastUpdated,
+    lastProcessed,
+  });
 
   writeGamerFile(gamertag, `${name}.html`, html);
 };
