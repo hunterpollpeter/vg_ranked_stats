@@ -70,6 +70,16 @@ const bestMatchStats = (prev, match) => {
   const shotsFiredPerMinute = shotsFired / timePlayedMinutes;
   const headshotsPerMinute = headshots / timePlayedMinutes;
 
+  // per life
+  const scorePerLife = score / deaths;
+  const killsPerLife = kills / deaths;
+  const assistsPerLife = assists / deaths;
+  const elimsPerLife = eliminations / deaths;
+  const damageDonePerLife = damageDone / deaths;
+  const damageTakenPerLife = damageTaken / deaths;
+  const shotsFiredPerLife = shotsFired / deaths;
+  const headshotsPerLife = headshots / deaths;
+
   // bests
   const bestEliminations = Math.max(prev.eliminations || 0, eliminations);
   const bestKills = Math.max(prev.kills || 0, kills);
@@ -80,14 +90,6 @@ const bestMatchStats = (prev, match) => {
   const bestDamageTaken = Math.min(prev.damageTaken || 9999, damageTaken);
   const bestShotsLanded = Math.max(prev.shotsLanded || 0, shotsLanded);
   const bestShotsFired = Math.max(prev.shotsFired || 0, shotsFired);
-  // const longestTimePlayedSeconds = Math.max(
-  //   prev.longestTimePlayedSeconds || 0,
-  //   timePlayedSeconds
-  // );
-  // const shortestTimePlayedSeconds = Math.min(
-  //   prev.shortestTimePlayedSeconds || 9999,
-  //   timePlayedSeconds
-  // );
   const bestScore = Math.max(prev.score || 0, score);
   const bestSuicides = Math.min(prev.suicides || 9999, suicides);
   const bestExecutions = Math.max(prev.executions || 0, executions);
@@ -130,6 +132,26 @@ const bestMatchStats = (prev, match) => {
     prev.percentTimeMoving || 0,
     percentTimeMoving
   );
+  const bestScorePerLife = Math.max(prev.scorePerLife || 0, scorePerLife);
+  const bestKillsPerLife = Math.max(prev.killsPerLife || 0, killsPerLife);
+  const bestAssistsPerLife = Math.max(prev.assistsPerLife || 0, assistsPerLife);
+  const bestElimsPerLife = Math.max(prev.elimsPerLife || 0, elimsPerLife);
+  const bestDamageDonePerLife = Math.max(
+    prev.damageDonePerLife || 0,
+    damageDonePerLife
+  );
+  const bestDamageTakenPerLife = Math.min(
+    prev.damageTakenPerLife || 9999,
+    damageTakenPerLife
+  );
+  const bestShotsFiredPerLife = Math.max(
+    prev.shotsFiredPerLife || 0,
+    shotsFiredPerLife
+  );
+  const bestHeadshotsPerLife = Math.max(
+    prev.headshotsPerLife || 0,
+    headshotsPerLife
+  );
 
   return {
     ...prev,
@@ -165,6 +187,15 @@ const bestMatchStats = (prev, match) => {
     damageTakenPerMinute: bestDamageTakenPerMinute,
     shotsFiredPerMinute: bestShotsFiredPerMinute,
     headshotsPerMinute: bestHeadshotsPerMinute,
+    // per life
+    scorePerLife: bestScorePerLife,
+    killsPerLife: bestKillsPerLife,
+    assistsPerLife: bestAssistsPerLife,
+    elimsPerLife: bestElimsPerLife,
+    damageDonePerLife: bestDamageDonePerLife,
+    damageTakenPerLife: bestDamageTakenPerLife,
+    shotsFiredPerLife: bestShotsFiredPerLife,
+    headshotsPerLife: bestHeadshotsPerLife,
   };
 };
 
@@ -250,6 +281,16 @@ const combineMatchStats = (prev, match) => {
   const shotsFiredPerGame = totalShotsFired / totalGames;
   const headshotsPerGame = totalHeadshots / totalGames;
 
+  // per life
+  const scorePerLife = totalScore / totalDeaths;
+  const killsPerLife = totalKills / totalDeaths;
+  const assistsPerLife = totalAssists / totalDeaths;
+  const elimsPerLife = totalEliminations / totalDeaths;
+  const damageDonePerLife = totalDamageDone / totalDeaths;
+  const damageTakenPerLife = totalDamageTaken / totalDeaths;
+  const shotsFiredPerLife = totalShotsFired / totalDeaths;
+  const headshotsPerLife = totalHeadshots / totalDeaths;
+
   return {
     ...prev,
     // totals
@@ -299,6 +340,15 @@ const combineMatchStats = (prev, match) => {
     damageTakenPerGame,
     shotsFiredPerGame,
     headshotsPerGame,
+    // per life,
+    scorePerLife,
+    killsPerLife,
+    assistsPerLife,
+    elimsPerLife,
+    damageDonePerLife,
+    damageTakenPerLife,
+    shotsFiredPerLife,
+    headshotsPerLife,
   };
 };
 

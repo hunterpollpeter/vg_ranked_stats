@@ -75,6 +75,14 @@ const TRANSFORMATIONS = {
   damageTakenPerGame: friendlyDecimal,
   shotsFiredPerGame: friendlyDecimal,
   headshotsPerGame: friendlyDecimal,
+  scorePerLife: friendlyDecimal,
+  killsPerLife: friendlyDecimal,
+  assistsPerLife: friendlyDecimal,
+  elimsPerLife: friendlyDecimal,
+  damageDonePerLife: friendlyDecimal,
+  damageTakenPerLife: friendlyDecimal,
+  shotsFiredPerLife: friendlyDecimal,
+  headshotsPerLife: friendlyDecimal,
 };
 
 export const translate = (input) => {
