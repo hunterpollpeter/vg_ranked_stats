@@ -153,12 +153,12 @@ getData(gamertag, { update, process }).then((data) => {
     data;
   const { overall, recent, best } = processedData;
   const linkedTo = [
-    { href: "lifetime.html", text: "lifetime" },
+    { href: "overall.html", text: "overall" },
     { href: "recent.html", text: "recent" },
     { href: "best.html", text: "best" },
   ];
 
-  dataToHtmlFile(gamertag, "lifetime", overall, {
+  dataToHtmlFile(gamertag, "overall", overall, {
     linkedTo,
     lastUpdated,
     lastProcessed,
