@@ -122,7 +122,7 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
   if (update || process) {
     const overall = processData(data);
     const recent = processData(data, {
-      last: 5,
+      last: 10,
       exclusions: ["percentPlayed"],
     });
     const best = processData(data, { best: true });
