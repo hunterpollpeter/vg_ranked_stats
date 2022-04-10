@@ -4,6 +4,7 @@ const TRANSLATIONS = {
   kdRatio: "Kill/Death Ratio",
   edRatio: "Elim/Death Ratio",
   wlRatio: "Win/Loss Ratio",
+  ddDtRatio: "Damage Done/Taken Ratio",
   mp_gavutu2: "Gavutu",
   mp_tuscan: "Tuscan",
   mp_bocage_2: "Bocage",
@@ -57,6 +58,7 @@ const TRANSFORMATIONS = {
   kdRatio: friendlyDecimal,
   edRatio: friendlyDecimal,
   wlRatio: friendlyDecimal,
+  ddDtRatio: friendlyDecimal,
   scorePerMinute: friendlyDecimal,
   killsPerMinute: friendlyDecimal,
   assistsPerMinute: friendlyDecimal,
@@ -83,6 +85,7 @@ const TRANSFORMATIONS = {
   damageTakenPerLife: friendlyDecimal,
   shotsFiredPerLife: friendlyDecimal,
   headshotsPerLife: friendlyDecimal,
+  rating: friendlyDecimal,
 };
 
 export const translate = (input) => {

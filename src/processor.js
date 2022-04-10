@@ -56,6 +56,7 @@ const bestMatchStats = (prev, match) => {
   // ratios/percentages
   const kdRatio = kills / (deaths || 1);
   const edRatio = eliminations / (deaths || 1);
+  const ddDtRatio = damageDone / (damageTaken || 1);
   const accuracy = shotsLanded / (shotsFired || 1);
   const headshotPercentage = headshots / (kills || 1);
 
@@ -96,6 +97,7 @@ const bestMatchStats = (prev, match) => {
   const bestLongestStreak = Math.max(prev.longestStreak || 0, longestStreak);
   const bestKdRatio = Math.max(prev.kdRatio || 0, kdRatio);
   const bestEdRatio = Math.max(prev.edRatio || 0, edRatio);
+  const bestDdDtRatio = Math.max(prev.ddDtRatio || 0, ddDtRatio);
   const bestAccuracy = Math.max(prev.accuracy || 0, accuracy);
   const bestHeadshotPercentage = Math.max(
     prev.headshotPercentage || 0,
@@ -175,6 +177,7 @@ const bestMatchStats = (prev, match) => {
     // ratios/percentages
     kdRatio: bestKdRatio,
     edRatio: bestEdRatio,
+    ddDtRatio: bestDdDtRatio,
     accuracy: bestAccuracy,
     headshotPercentage: bestHeadshotPercentage,
     // per minute
@@ -255,7 +258,8 @@ const combineMatchStats = (prev, match) => {
   // ratios/percentages
   const kdRatio = totalKills / (totalDeaths || 1);
   const edRatio = totalEliminations / (totalDeaths || 1);
-  const wlRatio = totalWins / totalLosses;
+  const ddDtRatio = totalDamageDone / (totalDamageTaken || 1);
+  const wlRatio = totalWins / (totalLosses || 1);
   const accuracy = totalShotsLanded / (totalShotsFired || 1);
   const headshotPercentage = totalHeadshots / (totalKills || 1);
 
@@ -291,6 +295,12 @@ const combineMatchStats = (prev, match) => {
   const shotsFiredPerLife = totalShotsFired / totalDeaths;
   const headshotsPerLife = totalHeadshots / totalDeaths;
 
+  // custom
+
+  // rating
+  // calculated rating given to a player
+  const rating = kdRatio * edRatio * wlRatio * ddDtRatio * scorePerMinute;
+
   return {
     ...prev,
     // totals
@@ -317,6 +327,7 @@ const combineMatchStats = (prev, match) => {
     // ratios/percentages
     kdRatio,
     edRatio,
+    ddDtRatio,
     wlRatio,
     accuracy,
     headshotPercentage,
@@ -349,6 +360,8 @@ const combineMatchStats = (prev, match) => {
     damageTakenPerLife,
     shotsFiredPerLife,
     headshotsPerLife,
+    // custom
+    rating,
   };
 };
 

@@ -69,10 +69,12 @@ const COMPARISONS = {
   kdRatio: compareRatio,
   edRatio: compareRatio,
   wlRatio: compareRatio,
+  ddDtRatio: compareRatio,
   accuracy: comparePercent,
   percentTimeMoving: comparePercent,
   headshotPercentage: comparePercent,
   percentPlayed: comparePercent,
+  rating: compareValue,
 };
 
 // const transformProcessedValue = (name, value) => {
