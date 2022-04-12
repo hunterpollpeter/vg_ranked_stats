@@ -24,6 +24,7 @@ const LOSS_STRING = "loss";
 const WIN_STRING = "win";
 const DRAW_STRING = "tie";
 const MIN_DURATION = 180000; // 3 minutes
+const RATING_BASE = 1000;
 
 const bestMatchStats = (prev, match) => {
   prev ||= {};
@@ -299,7 +300,9 @@ const combineMatchStats = (prev, match) => {
 
   // rating
   // calculated rating given to a player
-  const rating = kdRatio * edRatio * wlRatio * ddDtRatio * scorePerMinute;
+  const rating =
+    (kdRatio * 0.45 + edRatio * 0.2 + wlRatio * 0.25 + ddDtRatio * 0.1) *
+    RATING_BASE;
 
   return {
     ...prev,
