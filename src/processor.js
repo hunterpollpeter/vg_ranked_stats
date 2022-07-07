@@ -409,8 +409,8 @@ export const processData = (
     let mapMode = map?.[modeName];
 
     const gameCount = (overall?.games || 0) + 1;
-    const modeGameCount = (mode?.games || 0) + 1;
-    const mapGameCount = (map?.games || 0) + 1;
+    const modeGameCount = (modeOverall?.games || 0) + 1;
+    const mapGameCount = (mapOverall?.games || 0) + 1;
     const modeMapGameCount = (modeMap?.games || 0) + 1;
     const mapModeGameCount = (mapMode?.games || 0) + 1;
 
