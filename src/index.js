@@ -22,7 +22,7 @@ const DEFAULT_DATA = {
   matches: [],
   lastMatchEndMs: RANKED_RELEASE_MS,
 };
-const BIG_DATE_MS = 9999999999999;
+// const BIG_DATE_MS = 9999999999999;
 
 const usage = "\nUsage: vg-ranked-stats <activision_id>";
 const options = yargs
@@ -70,12 +70,14 @@ const fetchRankedMatches = async (
 
   const { matches } = data;
 
+  const hasMatches = !!matches?.length
+
   const rankedMatches =
     matches?.filter(({ playlistName }) =>
       RANKED_PLAYLIST_NAMES.includes(playlistName)
     ) || [];
 
-  return rankedMatches;
+  return [rankedMatches, hasMatches];
 };
 
 const getData = async (gamertag, { update = false, process = false } = {}) => {
@@ -87,22 +89,24 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
   const { matches, lastMatchEndMs } = data;
 
   if (update) {
+    const date = new Date()
+
     let allRecentMatches = [];
     let reachedEnd = false;
-    let oldestRecentMatchStartMs = BIG_DATE_MS;
+    let oldestRecentMatchStartMs = date.getTime();
 
     do {
-      let recentMatches = await fetchRankedMatches(gamertag, {
+      const [recentMatches, hasMatches] = await fetchRankedMatches(gamertag, {
         start: lastMatchEndMs + 1000,
         end: oldestRecentMatchStartMs,
       });
 
       const oldestRecentMatch = recentMatches[recentMatches.length - 1];
       oldestRecentMatchStartMs =
-        oldestRecentMatch && oldestRecentMatch.utcStartSeconds * 1000;
+        (oldestRecentMatch && oldestRecentMatch.utcStartSeconds * 1000) || (hasMatches && oldestRecentMatchStartMs - 36000000);
 
       reachedEnd =
-        !recentMatches.length || lastMatchEndMs > oldestRecentMatchStartMs;
+        !hasMatches || lastMatchEndMs > oldestRecentMatchStartMs;
 
       allRecentMatches = [...allRecentMatches, ...recentMatches];
     } while (!reachedEnd);
