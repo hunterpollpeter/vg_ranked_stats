@@ -71,7 +71,7 @@ const TRANSFORMATIONS = {
   scorePerGame: friendlyDecimal,
   killsPerGame: friendlyDecimal,
   assistsPerGame: friendlyDecimal,
-  deathPerGame: friendlyDecimal,
+  deathsPerGame: friendlyDecimal,
   elimsPerGame: friendlyDecimal,
   damageDonePerGame: friendlyDecimal,
   damageTakenPerGame: friendlyDecimal,

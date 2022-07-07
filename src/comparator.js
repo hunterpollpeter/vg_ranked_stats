@@ -1,5 +1,3 @@
-const COMPARISION_EXCLUSIONS = ["percentPlayed"];
-
 const transformPercent = (percent) => percent * 100;
 
 const comparePercent = (reference, subject) => {
@@ -52,7 +50,7 @@ const COMPARISONS = {
   scorePerGame: compareValue,
   killsPerGame: compareValue,
   assistsPerGame: compareValue,
-  deathPerGame: compareValue,
+  deathsPerGame: compareValue,
   elimsPerGame: compareValue,
   damageDonePerGame: compareValue,
   damageTakenPerGame: compareValue,
@@ -100,10 +98,10 @@ const compareProcessedValues = (name, reference, subject) => {
   };
 };
 
-export const compareProcessedData = (reference, subject) => {
+export const compareProcessedData = (reference, subject, { exclusions = [] } = {}) => {
   return Object.entries(reference).reduce(
     (comparison, [key, referenceValue]) => {
-      const isExcluded = COMPARISION_EXCLUSIONS.includes(key);
+      const isExcluded = exclusions.includes(key);
 
       if (isExcluded) return comparison;
 
@@ -112,7 +110,7 @@ export const compareProcessedData = (reference, subject) => {
         typeof referenceValue === "object" && referenceValue !== null;
 
       if (isObject) {
-        comparison[key] = compareProcessedData(referenceValue, subjectValue);
+        comparison[key] = compareProcessedData(referenceValue, subjectValue, { exclusions });
       } else {
         comparison[key] = compareProcessedValues(
           key,

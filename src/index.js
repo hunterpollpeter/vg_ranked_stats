@@ -126,6 +126,8 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
       exclusions: ["percentPlayed"],
     });
     const best = processData(data, { best: true });
+    const wins = processData(data, { losses: false, exclusions: ["rating", "wins", "losses", "wlRatio"] });
+    const losses = processData(data, { wins: false, exclusions: ["rating", "wins", "losses", "wlRatio"] });
 
     data = {
       ...data,
@@ -134,10 +136,14 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
         overall,
         recent,
         best,
+        wins,
+        losses
       },
       comparedProcessedData: {
         overall: {
           recent: compareProcessedData(overall, recent),
+          wins: compareProcessedData(overall, wins, { exclusions: ["eliminations", "kills", "deaths", "assists", "headshots", "damageDone", "damageTaken", "shotsLanded", "shotsFired", "timePlayedSeconds", "score", "suicides", "executions", "timeMovingSeconds", "games", "longestStreak"] }),
+          losses: compareProcessedData(overall, losses, { exclusions: ["eliminations", "kills", "deaths", "assists", "headshots", "damageDone", "damageTaken", "shotsLanded", "shotsFired", "timePlayedSeconds", "score", "suicides", "executions", "timeMovingSeconds", "games", "longestStreak"] }),
         },
       },
     };
@@ -151,11 +157,13 @@ const getData = async (gamertag, { update = false, process = false } = {}) => {
 getData(gamertag, { update, process }).then((data) => {
   const { processedData, comparedProcessedData, lastUpdated, lastProcessed } =
     data;
-  const { overall, recent, best } = processedData;
+  const { overall, recent, best, wins, losses } = processedData;
   const linkedTo = [
     { href: "overall.html", text: "overall" },
     { href: "recent.html", text: "recent" },
     { href: "best.html", text: "best" },
+    { href: "wins.html", text: "wins" },
+    { href: "losses.html", text: "losses" },
   ];
 
   dataToHtmlFile(gamertag, "overall", overall, {
@@ -173,5 +181,17 @@ getData(gamertag, { update, process }).then((data) => {
     linkedTo,
     lastUpdated,
     lastProcessed,
+  });
+  dataToHtmlFile(gamertag, "wins", wins, {
+    linkedTo,
+    lastUpdated,
+    lastProcessed,
+    comparedTo: comparedProcessedData.overall.wins,
+  });
+  dataToHtmlFile(gamertag, "losses", losses, {
+    linkedTo,
+    lastUpdated,
+    lastProcessed,
+    comparedTo: comparedProcessedData.overall.losses,
   });
 });

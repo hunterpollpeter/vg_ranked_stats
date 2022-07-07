@@ -3,6 +3,8 @@ bin/*
 
 !bin/gamers
 
+.DS_Store
+
 # ignore HTML files in source for now
 src/*.html
 src/sso_cookie.js

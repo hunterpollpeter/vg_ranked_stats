@@ -203,10 +203,20 @@ const bestMatchStats = (prev, match) => {
   };
 };
 
-const combineMatchStats = (prev, match) => {
+const combineMatchStats = (prev, match, { wins = true, losses = true }) => {
   prev ||= BASE_STATS;
 
   const { playerStats, result } = match;
+
+  const win = +(result === WIN_STRING);
+  const loss = +(result === LOSS_STRING);
+  const draw = +(result === DRAW_STRING);
+
+  // if it's a win and we're not tracking wins, return previous
+  if (win && !wins) return {...prev};
+  // if it's a loss and we're not tracking losses, return previous
+  if (loss && !losses) return {...prev};
+  
   const {
     kills,
     deaths,
@@ -228,9 +238,6 @@ const combineMatchStats = (prev, match) => {
   const percentTimeMoving = percentTimeMovingRaw / 100;
   const timeMovingSeconds = timePlayedSeconds * percentTimeMoving;
   const eliminations = kills + assists;
-  const win = +(result === WIN_STRING);
-  const loss = +(result === LOSS_STRING);
-  const draw = +(result === DRAW_STRING);
 
   // totals
   const totalEliminations = prev.eliminations + eliminations;
@@ -279,7 +286,7 @@ const combineMatchStats = (prev, match) => {
   const scorePerGame = totalScore / totalGames;
   const killsPerGame = totalKills / totalGames;
   const assistsPerGame = totalAssists / totalGames;
-  const deathPerGame = totalDeaths / totalGames;
+  const deathsPerGame = totalDeaths / totalGames;
   const elimsPerGame = totalEliminations / totalGames;
   const damageDonePerGame = totalDamageDone / totalGames;
   const damageTakenPerGame = totalDamageTaken / totalGames;
@@ -348,7 +355,7 @@ const combineMatchStats = (prev, match) => {
     scorePerGame,
     killsPerGame,
     assistsPerGame,
-    deathPerGame,
+    deathsPerGame,
     elimsPerGame,
     damageDonePerGame,
     damageTakenPerGame,
@@ -368,17 +375,17 @@ const combineMatchStats = (prev, match) => {
   };
 };
 
-const mergeMatchStats = (prev, match, { best = false } = {}) => {
+const mergeMatchStats = (prev, match, { best = false, wins = true, losses = true } = {}) => {
   if (best) {
     return bestMatchStats(prev, match);
   }
 
-  return combineMatchStats(prev, match);
+  return combineMatchStats(prev, match, { wins, losses });
 };
 
 export const processData = (
   data,
-  { last = 99999, exclusions = [], best = false } = {}
+  { last = 99999, exclusions = [], best = false, wins = true, losses = true } = {}
 ) => {
   const { matches } = data;
 
@@ -395,7 +402,9 @@ export const processData = (
 
     let overall = pd.overall;
     let mode = modes[modeName];
+    let modeOverall = mode?.overall;
     let map = maps[mapName];
+    let mapOverall = map?.overall;
     let modeMap = mode?.[mapName];
     let mapMode = map?.[modeName];
 
@@ -406,30 +415,30 @@ export const processData = (
     const mapModeGameCount = (mapMode?.games || 0) + 1;
 
     if (gameCount <= last) {
-      overall = mergeMatchStats(overall, match, { best });
+      overall = mergeMatchStats(overall, match, { best, wins, losses });
     }
     if (modeGameCount <= last) {
-      mode = mergeMatchStats(mode, match, { best });
+      modeOverall = mergeMatchStats(modeOverall, match, { best, wins, losses });
     }
     if (mapGameCount <= last) {
-      map = mergeMatchStats(map, match, { best });
+      mapOverall = mergeMatchStats(mapOverall, match, { best, wins, losses });
     }
     if (modeMapGameCount <= last) {
-      modeMap = mergeMatchStats(modeMap, match, { best });
+      modeMap = mergeMatchStats(modeMap, match, { best, wins, losses });
     }
     if (mapModeGameCount <= last) {
-      mapMode = mergeMatchStats(mapMode, match, { best });
+      mapMode = mergeMatchStats(mapMode, match, { best, wins, losses });
     }
 
-    mode.percentPlayed = modeGameCount / gameCount;
-    map.percentPlayed = mapGameCount / gameCount;
+    modeOverall.percentPlayed = modeGameCount / gameCount;
+    mapOverall.percentPlayed = mapGameCount / gameCount;
     modeMap.percentPlayed = modeMapGameCount / gameCount;
     mapMode.percentPlayed = mapModeGameCount / gameCount;
 
     exclusions.forEach((exclusion) => {
       delete overall[exclusion];
-      delete mode[exclusion];
-      delete map[exclusion];
+      delete modeOverall[exclusion];
+      delete mapOverall[exclusion];
       delete modeMap[exclusion];
       delete mapMode[exclusion];
     });
@@ -440,6 +449,7 @@ export const processData = (
         ...modes,
         [modeName]: {
           ...mode,
+          overall: modeOverall,
           [mapName]: modeMap,
         },
       },
@@ -447,6 +457,7 @@ export const processData = (
         ...maps,
         [mapName]: {
           ...map,
+          overall: mapOverall,
           [modeName]: mapMode,
         },
       },
