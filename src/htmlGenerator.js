@@ -2,6 +2,8 @@ import { translate, transformStatValue } from "./translator";
 import { writeGamerFile } from "./utils";
 
 const MAX_DEPTH = 6;
+const TOP_NAV_HEIGHT = 60;
+const HEADER_HEIGHT = 50;
 
 const STYLE = `body {
   font-family: "Helvetica Neue", Helvetica, Arial;
@@ -15,8 +17,14 @@ const STYLE = `body {
 }
 
 nav#top {
+  height: ${TOP_NAV_HEIGHT};
+  box-sizing: border-box;
+  background-color: white;
+  position: sticky;
+  top: 0;
   border-bottom: 1px solid black;
   padding: 20px;
+  z-index: 2000;
 }
 
 nav#top span, nav#top a {
@@ -77,7 +85,7 @@ li.stat {
     nav#side {
       flex: 0 0 0;
       position: sticky;
-      top: 0;
+      top: ${TOP_NAV_HEIGHT};
       align-self: flex-start;
       padding: 20px;
     }
@@ -148,8 +156,6 @@ const htmlDoc = (
 </html>`;
 };
 
-const HEADER_HEIGHT = 50;
-
 const objectNavHtml = (data, prevId) => {
   let html = "";
 
@@ -185,7 +191,7 @@ const objectToHtml = (
     html += `<li id="${id}" class="${liClass}">`;
     if (isObject) {
       html += `<h${headerDepth} class="sticky-header" style="top: ${
-        depth * (HEADER_HEIGHT + 1)
+        depth * HEADER_HEIGHT + TOP_NAV_HEIGHT
       }; height: ${HEADER_HEIGHT}; z-index: ${
         1000 - depth * 100
       }">${header}</h${headerDepth}>`;
